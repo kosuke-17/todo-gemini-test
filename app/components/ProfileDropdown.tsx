@@ -2,18 +2,16 @@
 
 import { Fragment } from 'react'
 import { Menu, Transition } from '@headlessui/react'
-import { Session } from 'next-auth'
 import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { User } from '@prisma/client'
 
 interface ProfileDropdownProps {
-  session: Session
+  user: User
 }
 
-export default function ProfileDropdown({ session }: ProfileDropdownProps) {
-  const user = session.user
-
+export default function ProfileDropdown({ user }: ProfileDropdownProps) {
   return (
     <Menu as='div' className='relative ml-3'>
       <div>

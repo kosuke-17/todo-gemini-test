@@ -1,10 +1,12 @@
 import { requireAuth, getCurrentUser } from '@/lib/auth'
 import { Metadata } from 'next'
 import Link from 'next/link'
+import UpdateNameForm from '@/app/components/profile/UpdateNameForm'
+import DeleteAccountForm from '@/app/components/profile/DeleteAccountForm'
 
 export const metadata: Metadata = {
   title: 'プロフィール設定',
-  description: 'プロフィール情報の編集',
+  description: 'アカウント情報の管理',
 }
 
 export default async function ProfileSettingsPage() {
@@ -23,32 +25,29 @@ export default async function ProfileSettingsPage() {
   }
 
   return (
-    <div className='max-w-2xl mx-auto px-4 py-10'>
-      <div className='flex items-center justify-between mb-6'>
+    <div className='max-w-3xl mx-auto px-4 py-8'>
+      <div className='flex items-center justify-between mb-8'>
         <h1 className='text-2xl font-bold'>プロフィール設定</h1>
-        <Link href='/profile' className='text-indigo-600 hover:text-indigo-900'>
-          プロフィールに戻る
+        <Link
+          href='/profile'
+          className='text-indigo-600 hover:text-indigo-900 font-medium'
+        >
+          ← プロフィールに戻る
         </Link>
       </div>
 
-      <div className='bg-white rounded-lg shadow overflow-hidden'>
-        <div className='p-6 sm:p-8'>
-          <p className='text-center text-gray-600 mb-4'>
-            この機能は現在開発中です。プロフィール設定の機能はまもなく実装される予定です。
-          </p>
+      <div className='space-y-8'>
+        <section id='basic-info'>
+          <h2 className='text-xl font-semibold mb-4'>基本情報</h2>
+          <UpdateNameForm user={user} />
+        </section>
 
-          <div className='space-y-4 mt-6'>
-            <h3 className='text-lg font-medium'>将来実装予定の機能:</h3>
-            <ul className='list-disc pl-5 space-y-2 text-gray-600'>
-              <li>プロフィール名の変更</li>
-              <li>プロフィール画像のアップロード</li>
-              <li>パスワードの変更</li>
-              <li>メールアドレスの変更（確認メールが送信されます）</li>
-              <li>通知設定</li>
-              <li>アカウントの削除</li>
-            </ul>
-          </div>
-        </div>
+        <section id='danger-zone'>
+          <h2 className='text-xl font-semibold text-red-600 mb-4'>
+            危険ゾーン
+          </h2>
+          <DeleteAccountForm />
+        </section>
       </div>
     </div>
   )

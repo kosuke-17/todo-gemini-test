@@ -1,11 +1,11 @@
 import Link from 'next/link'
-import { getSession } from '@/lib/auth'
 import ProfileDropdown from './ProfileDropdown'
 import LogoutButton from './LogoutButton'
+import { getCurrentUser } from '@/lib/auth'
 
 export default async function Header() {
-  const session = await getSession()
-  const isAuthenticated = !!session
+  const user = await getCurrentUser()
+  const isAuthenticated = !!user
 
   return (
     <header className='bg-white shadow'>
@@ -27,7 +27,7 @@ export default async function Header() {
                   プロフィール
                 </Link>
 
-                {session.user && <ProfileDropdown session={session} />}
+                {user && <ProfileDropdown user={user} />}
 
                 <div className='hidden sm:block'>
                   <LogoutButton variant='secondary' />
