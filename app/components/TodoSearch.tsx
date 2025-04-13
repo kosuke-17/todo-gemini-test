@@ -199,6 +199,7 @@ export default function TodoSearch({ onSearch }: TodoSearchProps) {
               ].map((option) => (
                 <button
                   key={option.value}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={() => handleStatusChange(option.value as any)}
                   className={`px-3 py-1 text-sm rounded-md border ${
                     searchParams.status === option.value
@@ -255,6 +256,7 @@ export default function TodoSearch({ onSearch }: TodoSearchProps) {
               ].map((option) => (
                 <button
                   key={option.value}
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={() => handleDueDateChange(option.value as any)}
                   className={`px-3 py-1 text-sm rounded-md border ${
                     searchParams.dueDate === option.value

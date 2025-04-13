@@ -2,6 +2,7 @@ import { requireAuth, getCurrentUser } from '@/lib/auth'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import UpdateNameForm from '@/app/components/profile/UpdateNameForm'
+import UpdateEmailForm from '@/app/components/profile/UpdateEmailForm'
 import DeleteAccountForm from '@/app/components/profile/DeleteAccountForm'
 
 export const metadata: Metadata = {
@@ -39,7 +40,10 @@ export default async function ProfileSettingsPage() {
       <div className='space-y-8'>
         <section id='basic-info'>
           <h2 className='text-xl font-semibold mb-4'>基本情報</h2>
-          <UpdateNameForm user={user} />
+          <div className='space-y-6'>
+            <UpdateNameForm user={user} />
+            <UpdateEmailForm user={user} />
+          </div>
         </section>
 
         <section id='danger-zone'>

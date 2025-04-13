@@ -4,6 +4,10 @@ import './globals.css'
 import Header from './components/Header'
 import { NextAuthProvider } from './providers'
 
+// Route Segment Config - 動的レンダリングを強制
+// [https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic](https://nextjs.org/docs/app/api-reference/file-conventions/route-segment-config#dynamic)
+export const dynamic = 'force-dynamic'
+
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],

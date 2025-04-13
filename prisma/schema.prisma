@@ -20,31 +20,32 @@ enum Priority {
 }
 
 model Todo {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   content   String
-  completed Boolean  @default(false)
+  completed Boolean   @default(false)
   dueDate   DateTime?
-  priority  Priority @default(NONE)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  priority  Priority  @default(NONE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   // ユーザーIDと関連付け
   userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // ユーザーモデル
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String    @unique
-  emailVerified DateTime?
-  password      String?
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  todos         Todo[]
-  accounts      Account[]
-  sessions      Session[]
+  id                String             @id @default(cuid())
+  name              String?
+  email             String?            @unique
+  emailVerified     DateTime?
+  image             String?
+  password          String?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  accounts          Account[]
+  sessions          Session[]
+  todos             Todo[]
+  emailChangeTokens EmailChangeToken[]
 }
 
 model Account {
@@ -79,4 +80,18 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model EmailChangeToken {
+  id        String   @id @default(cuid())
+  userId    String
+  oldEmail  String
+  newEmail  String
+  token     String   @unique
+  expires   DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
 }
