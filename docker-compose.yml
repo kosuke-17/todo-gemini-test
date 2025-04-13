@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15
+    container_name: todo_db
+    restart: always
+    environment:
+      POSTGRES_DB: tododb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: todo_app
+    restart: unless-stopped
+    ports:
+      - '3000:3000'
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql://user:password@db:5432/tododb
+      NEXT_PUBLIC_APP_URL: http://localhost:3000 # 必要に応じて設定
+    # Add this command to wait for the database to be ready and apply migrations
+    command: >
+      sh -c "
+      npx prisma migrate deploy &&
+      node server.js
+      "
+    volumes:
+      - .:/app #開発中はコード変更を反映させるためにマウント（本番では不要）
+      - /app/node_modules # マウント対象から除外
+      - /app/.next # マウント対象から除外
+
+volumes:
+  postgres_data:
