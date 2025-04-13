@@ -1,7 +1,7 @@
 'use client'
 
 import { type Todo } from '@prisma/client'
-import { useActionState } from 'react' // useTransitionも便利
+import { useActionState, useTransition } from 'react' // useTransitionも便利
 import {
   toggleTodoComplete,
   deleteTodo,
@@ -25,18 +25,19 @@ export default function TodoItem({ todo }: TodoItemProps) {
   >(deleteTodo, null)
 
   // useTransition を使うと Optimistic UI の実装がしやすくなる (今回は useActionState の isPending を使用)
-  // const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition()
 
   const handleToggle = (formData: FormData) => {
-    // startTransition(() => { // Optimistic UI を行う場合
-    toggleAction(formData)
-    // });
+    startTransition(() => {
+      // Optimistic UI を行う場合
+      toggleAction(formData)
+    })
   }
 
   const handleDelete = (formData: FormData) => {
-    // startTransition(() => {
-    deleteAction(formData)
-    // });
+    startTransition(() => {
+      deleteAction(formData)
+    })
   }
 
   return (
