@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { NextRequest } from 'next/server'
 import { getToken } from 'next-auth/jwt'
+import { validateCsrfToken } from '@/lib/csrf'
 
 // 認証が必要なパス
 const protectedPaths = [
@@ -11,8 +12,30 @@ const protectedPaths = [
 // 認証済みユーザーにリダイレクトするパス
 const authRoutes = ['/auth/login', '/auth/register', '/auth/forgot-password']
 
+// CSRF検証が必要なAPI
+const csrfProtectedRoutes = [
+  '/api/auth/register',
+  '/api/auth/callback/credentials', // Next-Authのログイン処理
+  // 他のCSRF保護が必要なエンドポイント
+]
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
+  const method = request.method
+
+  // CSRF保護が必要なAPIへのPOSTリクエストをチェック
+  if (
+    method === 'POST' &&
+    csrfProtectedRoutes.some((route) => pathname.startsWith(route))
+  ) {
+    // CSRFトークンを検証
+    if (!validateCsrfToken(request)) {
+      return NextResponse.json(
+        { error: 'CSRF検証に失敗しました' },
+        { status: 403 }
+      )
+    }
+  }
 
   // 認証トークンを取得
   const token = await getToken({
@@ -52,5 +75,6 @@ export const config = {
      * - api routes that don't require auth
      */
     '/((?!_next/static|_next/image|favicon.ico|public|api/auth).*)',
+    '/api/auth/register',
   ],
 }

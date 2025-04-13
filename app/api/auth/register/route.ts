@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { registerUser } from '@/lib/auth'
 import { z } from 'zod'
+import { validateCsrfToken } from '@/lib/csrf'
 
 // バリデーションスキーマ
 const userSchema = z.object({
@@ -15,6 +16,14 @@ const userSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // CSRFトークンの検証
+    if (!validateCsrfToken(request)) {
+      return NextResponse.json(
+        { error: 'CSRFトークンが無効です' },
+        { status: 403 }
+      )
+    }
+
     const body = await request.json()
 
     // バリデーション

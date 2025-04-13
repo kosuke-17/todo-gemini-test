@@ -10,9 +10,14 @@ type AuthFormType = 'login' | 'register'
 interface AuthFormProps {
   type: AuthFormType
   callbackUrl?: string
+  csrfToken: string
 }
 
-export default function AuthForm({ type, callbackUrl = '/' }: AuthFormProps) {
+export default function AuthForm({
+  type,
+  callbackUrl = '/',
+  csrfToken,
+}: AuthFormProps) {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -39,6 +44,7 @@ export default function AuthForm({ type, callbackUrl = '/' }: AuthFormProps) {
           redirect: false,
           email,
           password,
+          csrfToken,
         })
 
         if (result?.error) {
@@ -54,6 +60,7 @@ export default function AuthForm({ type, callbackUrl = '/' }: AuthFormProps) {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'x-csrf-token': csrfToken,
           },
           body: JSON.stringify({ name, email, password }),
         })
@@ -71,6 +78,7 @@ export default function AuthForm({ type, callbackUrl = '/' }: AuthFormProps) {
           redirect: false,
           email,
           password,
+          csrfToken,
         })
 
         if (signInResult?.error) {
@@ -105,6 +113,8 @@ export default function AuthForm({ type, callbackUrl = '/' }: AuthFormProps) {
           )}
 
           <form className='space-y-6' onSubmit={handleSubmit}>
+            <input type='hidden' name='csrf_token' value={csrfToken} />
+
             {!isLogin && (
               <div>
                 <label

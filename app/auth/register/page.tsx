@@ -1,10 +1,11 @@
 import { redirectIfAuthenticated } from '@/lib/auth'
 import AuthForm from '@/app/components/AuthForm'
 import { Metadata } from 'next'
+import { generateCsrfToken } from '@/lib/csrf'
 
 export const metadata: Metadata = {
-  title: 'アカウント登録',
-  description: '新しいアカウントを作成してTodoを管理しましょう',
+  title: '新規登録',
+  description: 'アカウントを作成してTodoを管理しましょう',
 }
 
 interface RegisterPageProps {
@@ -19,5 +20,14 @@ export default async function RegisterPage({
   // 認証済みの場合はリダイレクト
   await redirectIfAuthenticated()
 
-  return <AuthForm type='register' callbackUrl={searchParams.callbackUrl} />
+  // CSRFトークンを生成
+  const csrfToken = generateCsrfToken()
+
+  return (
+    <AuthForm
+      type='register'
+      callbackUrl={searchParams.callbackUrl}
+      csrfToken={csrfToken}
+    />
+  )
 }

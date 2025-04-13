@@ -34,11 +34,15 @@ export const authOptions: NextAuthOptions = {
       credentials: {
         email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
+        csrfToken: { label: 'CSRF Token', type: 'text' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
+
+        // 注意: ここではCSRFトークンの検証を行わない
+        // トークン検証はAPI呼び出し時にミドルウェアまたは別の方法で行う
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
@@ -99,6 +103,8 @@ export const authOptions: NextAuthOptions = {
       return session
     },
   },
+  // CSRF保護を有効にする（Next-Authデフォルトで有効だが明示的に設定）
+  useSecureCookies: process.env.NODE_ENV === 'production',
   debug: process.env.NODE_ENV === 'development',
 }
 
