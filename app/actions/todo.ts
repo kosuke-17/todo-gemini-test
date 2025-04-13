@@ -10,6 +10,7 @@ import {
   UpdateTodoPrioritySchema,
 } from '@/lib/schema'
 import { Prisma } from '@prisma/client' // Prismaの型を利用
+import { getSession } from '@/lib/auth'
 
 // Action State の型定義
 export type TodoActionState = {
@@ -47,6 +48,12 @@ export async function createTodo(
 
   // 3. データベースに保存
   try {
+    // セッションからユーザーIDを取得
+    const session = await getSession()
+    if (!session?.user?.id) {
+      return { status: 'error', message: '認証されていません。' }
+    }
+
     await prisma.todo.create({
       data: {
         content: validatedFields.data.content,
@@ -54,6 +61,7 @@ export async function createTodo(
           ? new Date(validatedFields.data.dueDate)
           : null,
         priority: validatedFields.data.priority,
+        userId: session.user.id,
       },
     })
 
