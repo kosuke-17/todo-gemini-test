@@ -9,7 +9,10 @@ export const dynamic = 'force-dynamic'
 export default async function Home() {
   // Server Component 内で直接 DB アクセス (または専用関数経由)
   const todos = await prisma.todo.findMany({
-    orderBy: { createdAt: 'desc' }, // 作成日時の降順で取得
+    orderBy: [
+      { priority: 'desc' }, // 優先順位の降順
+      { createdAt: 'desc' }, // 同じ優先順位内では作成日時の降順
+    ],
   })
 
   return (

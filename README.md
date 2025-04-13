@@ -1,6 +1,6 @@
 初回のプロダクトの作成は gemini の pro(experimental)に頼んだ
 
-以下のプロンプトを投げた。cursor の claude-3.7-sonnet よりも Server Functions と Server Actions の書き方が最新の v15 に近かった
+以下のプロンプトを投げた。cursor の claude-3.7-sonnet よりも Server Functions と Server Actions の書き方が最新の v15 に近かった。なぜかソート機能が追加されている。
 
 ```
 todoアプリの作成をしたいです。

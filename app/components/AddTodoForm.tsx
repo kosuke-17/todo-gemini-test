@@ -2,6 +2,8 @@
 
 import { useActionState, useRef, useEffect, useState } from 'react'
 import { createTodo, type TodoActionState } from '@/app/actions/todo' // 型をインポート
+import { type Priority } from '@/lib/schema'
+import { priorityNames, priorityColors } from '@/lib/priority-utils'
 
 export default function AddTodoForm() {
   const [state, formAction, isPending] = useActionState<
@@ -13,12 +15,16 @@ export default function AddTodoForm() {
   )
   const formRef = useRef<HTMLFormElement>(null)
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [showPrioritySelector, setShowPrioritySelector] = useState(false)
+  const [selectedPriority, setSelectedPriority] = useState<Priority>('NONE')
 
   useEffect(() => {
     // Action が成功したらフォームをリセット
     if (state?.status === 'success') {
       formRef.current?.reset()
       setShowDatePicker(false)
+      setShowPrioritySelector(false)
+      setSelectedPriority('NONE')
     }
   }, [state]) // state が変化するたびに実行
 
@@ -39,6 +45,13 @@ export default function AddTodoForm() {
           className='px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100'
         >
           {showDatePicker ? '期限を隠す' : '期限を設定'}
+        </button>
+        <button
+          type='button'
+          onClick={() => setShowPrioritySelector(!showPrioritySelector)}
+          className='px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100'
+        >
+          {showPrioritySelector ? '優先度を隠す' : '優先度を設定'}
         </button>
         <button
           type='submit'
@@ -77,6 +90,36 @@ export default function AddTodoForm() {
           >
             クリア
           </button>
+        </div>
+      )}
+
+      {/* 優先順位選択UI */}
+      {showPrioritySelector && (
+        <div className='mt-3'>
+          <label className='block text-sm text-gray-700 mb-2'>優先順位:</label>
+          <div className='flex flex-wrap gap-2'>
+            {/* 隠しフィールドで選択された優先順位を保持 */}
+            <input type='hidden' name='priority' value={selectedPriority} />
+
+            {Object.entries(priorityNames).map(([key, name]) => {
+              const priority = key as Priority
+              const { bg, text } = priorityColors[priority]
+              return (
+                <button
+                  key={key}
+                  type='button'
+                  onClick={() => setSelectedPriority(priority)}
+                  className={`px-3 py-1 rounded-md border ${
+                    selectedPriority === priority
+                      ? `${bg} ${text} font-medium border-gray-400`
+                      : 'border-gray-300 hover:bg-gray-100'
+                  }`}
+                >
+                  {name}
+                </button>
+              )
+            })}
+          </div>
         </div>
       )}
 

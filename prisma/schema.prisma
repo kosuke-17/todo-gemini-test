@@ -10,11 +10,21 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// 優先順位のEnum型定義
+enum Priority {
+  NONE
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model Todo {
   id        Int      @id @default(autoincrement())
   content   String
   completed Boolean  @default(false)
   dueDate   DateTime?
+  priority  Priority @default(NONE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

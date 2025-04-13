@@ -7,6 +7,7 @@ import {
   CreateTodoSchema,
   DeleteTodoSchema,
   UpdateTodoDueDateSchema,
+  UpdateTodoPrioritySchema,
 } from '@/lib/schema'
 import { Prisma } from '@prisma/client' // Prismaの型を利用
 
@@ -26,6 +27,7 @@ export async function createTodo(
   const rawData = {
     content: formData.get('content'),
     dueDate: formData.get('dueDate'),
+    priority: formData.get('priority') || 'NONE',
   }
 
   // 2. Zod でバリデーション
@@ -51,6 +53,7 @@ export async function createTodo(
         dueDate: validatedFields.data.dueDate
           ? new Date(validatedFields.data.dueDate)
           : null,
+        priority: validatedFields.data.priority,
       },
     })
 
@@ -195,6 +198,55 @@ export async function updateTodoDueDate(
     revalidatePath('/')
 
     return { status: 'success', message: 'Todoの期限を更新しました。' }
+  } catch (e) {
+    console.error('Database Error:', e)
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === 'P2025'
+    ) {
+      return {
+        status: 'error',
+        message: '対象の Todo が見つかりませんでした。',
+      }
+    }
+    return { status: 'error', message: 'データベースエラーが発生しました。' }
+  }
+}
+
+// Todo優先順位更新Action
+export async function updateTodoPriority(
+  prevState: TodoActionState | null,
+  formData: FormData
+): Promise<TodoActionState> {
+  // 1. formData からデータを抽出
+  const rawData = {
+    id: Number(formData.get('id')),
+    priority: formData.get('priority'),
+  }
+
+  // 2. Zod でバリデーション
+  const validatedFields = UpdateTodoPrioritySchema.safeParse(rawData)
+  if (!validatedFields.success) {
+    return {
+      status: 'error',
+      message: '入力内容に誤りがあります。',
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  // 3. データベースを更新
+  try {
+    await prisma.todo.update({
+      where: { id: validatedFields.data.id },
+      data: {
+        priority: validatedFields.data.priority,
+      },
+    })
+
+    // 4. キャッシュを更新
+    revalidatePath('/')
+
+    return { status: 'success', message: 'Todoの優先順位を更新しました。' }
   } catch (e) {
     console.error('Database Error:', e)
     if (
