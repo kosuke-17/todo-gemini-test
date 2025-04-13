@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useRef, useEffect } from 'react'
+import { useActionState, useRef, useEffect, useState } from 'react'
 import { createTodo, type TodoActionState } from '@/app/actions/todo' // 型をインポート
 
 export default function AddTodoForm() {
@@ -12,11 +12,13 @@ export default function AddTodoForm() {
     null // 初期状態
   )
   const formRef = useRef<HTMLFormElement>(null)
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   useEffect(() => {
     // Action が成功したらフォームをリセット
     if (state?.status === 'success') {
       formRef.current?.reset()
+      setShowDatePicker(false)
     }
   }, [state]) // state が変化するたびに実行
 
@@ -32,6 +34,13 @@ export default function AddTodoForm() {
           aria-describedby='content-error'
         />
         <button
+          type='button'
+          onClick={() => setShowDatePicker(!showDatePicker)}
+          className='px-3 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100'
+        >
+          {showDatePicker ? '期限を隠す' : '期限を設定'}
+        </button>
+        <button
           type='submit'
           disabled={isPending} // Action 実行中はボタンを無効化
           className={`px-4 py-2 rounded-md text-white ${
@@ -43,6 +52,33 @@ export default function AddTodoForm() {
           {isPending ? '追加中...' : '追加'}
         </button>
       </div>
+
+      {/* 日付選択UI */}
+      {showDatePicker && (
+        <div className='mt-3'>
+          <label htmlFor='dueDate' className='block text-sm text-gray-700 mb-1'>
+            期限日時:
+          </label>
+          <input
+            type='datetime-local'
+            id='dueDate'
+            name='dueDate'
+            className='px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
+          />
+          <button
+            type='button'
+            onClick={() => {
+              const input = formRef.current?.querySelector(
+                'input[name="dueDate"]'
+              ) as HTMLInputElement
+              if (input) input.value = ''
+            }}
+            className='ml-2 px-2 py-1 text-sm border border-gray-300 rounded-md text-gray-700 hover:bg-gray-100'
+          >
+            クリア
+          </button>
+        </div>
+      )}
 
       {/* Zod バリデーションエラー表示 */}
       {state?.status === 'error' && state.errors?.content && (

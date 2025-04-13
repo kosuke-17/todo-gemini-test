@@ -5,8 +5,8 @@ import { z } from 'zod'
 import { prisma } from '@/lib/prisma'
 import {
   CreateTodoSchema,
-  // UpdateTodoSchema,
   DeleteTodoSchema,
+  UpdateTodoDueDateSchema,
 } from '@/lib/schema'
 import { Prisma } from '@prisma/client' // Prismaの型を利用
 
@@ -25,6 +25,7 @@ export async function createTodo(
   // 1. formData からデータを抽出
   const rawData = {
     content: formData.get('content'),
+    dueDate: formData.get('dueDate'),
   }
 
   // 2. Zod でバリデーション
@@ -47,6 +48,9 @@ export async function createTodo(
     await prisma.todo.create({
       data: {
         content: validatedFields.data.content,
+        dueDate: validatedFields.data.dueDate
+          ? new Date(validatedFields.data.dueDate)
+          : null,
       },
     })
 
@@ -149,6 +153,57 @@ export async function deleteTodo(
       return {
         status: 'error',
         message: '削除対象の Todo が見つかりませんでした。',
+      }
+    }
+    return { status: 'error', message: 'データベースエラーが発生しました。' }
+  }
+}
+
+// Todo期限更新Action
+export async function updateTodoDueDate(
+  prevState: TodoActionState | null,
+  formData: FormData
+): Promise<TodoActionState> {
+  // 1. formData からデータを抽出
+  const rawData = {
+    id: Number(formData.get('id')),
+    dueDate: formData.get('dueDate'),
+  }
+
+  // 2. Zod でバリデーション
+  const validatedFields = UpdateTodoDueDateSchema.safeParse(rawData)
+  if (!validatedFields.success) {
+    return {
+      status: 'error',
+      message: '入力内容に誤りがあります。',
+      errors: validatedFields.error.flatten().fieldErrors,
+    }
+  }
+
+  // 3. データベースを更新
+  try {
+    await prisma.todo.update({
+      where: { id: validatedFields.data.id },
+      data: {
+        dueDate: validatedFields.data.dueDate
+          ? new Date(validatedFields.data.dueDate)
+          : null,
+      },
+    })
+
+    // 4. キャッシュを更新
+    revalidatePath('/')
+
+    return { status: 'success', message: 'Todoの期限を更新しました。' }
+  } catch (e) {
+    console.error('Database Error:', e)
+    if (
+      e instanceof Prisma.PrismaClientKnownRequestError &&
+      e.code === 'P2025'
+    ) {
+      return {
+        status: 'error',
+        message: '対象の Todo が見つかりませんでした。',
       }
     }
     return { status: 'error', message: 'データベースエラーが発生しました。' }
