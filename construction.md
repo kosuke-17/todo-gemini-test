@@ -1,3 +1,5 @@
+<!-- geminiのoutput mdファイル -->
+
 # construction.md
 
 ## Todo アプリケーション構築手順

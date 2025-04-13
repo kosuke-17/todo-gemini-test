@@ -12,12 +12,14 @@ import {
 import { getDueStatus, formatDueDate } from '@/lib/date-utils'
 import { priorityNames, priorityColors } from '@/lib/priority-utils'
 import { type Priority } from '@/lib/schema'
+import { highlightKeyword } from '@/lib/search-utils'
 
 interface TodoItemProps {
   todo: Todo
+  searchKeyword?: string
 }
 
-export default function TodoItem({ todo }: TodoItemProps) {
+export default function TodoItem({ todo, searchKeyword = '' }: TodoItemProps) {
   // 完了状態更新用
   const [toggleState, toggleAction, isTogglePending] = useActionState<
     TodoActionState | null,
@@ -103,6 +105,20 @@ export default function TodoItem({ todo }: TodoItemProps) {
     return border ? `border-l-4 ${border}` : ''
   }
 
+  // 検索キーワードに一致するコンテンツをハイライト表示
+  const highlightedContent = searchKeyword ? (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: highlightKeyword(todo.content, searchKeyword),
+      }}
+      className={`${todo.completed ? 'line-through text-gray-500' : ''}`}
+    />
+  ) : (
+    <span className={`${todo.completed ? 'line-through text-gray-500' : ''}`}>
+      {todo.content}
+    </span>
+  )
+
   return (
     <li
       className={`flex flex-col p-3 rounded-md border ${
@@ -135,13 +151,7 @@ export default function TodoItem({ todo }: TodoItemProps) {
             />
           </form>
           <div className='flex flex-col'>
-            <span
-              className={`${
-                todo.completed ? 'line-through text-gray-500' : ''
-              }`}
-            >
-              {todo.content}
-            </span>
+            {highlightedContent}
 
             {/* 優先順位バッジ表示（NONEの場合は表示しない） */}
             {todo.priority !== 'NONE' && (
